@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: car-parking
+data:
+  DB_HOST: "db-service"
+  DB_PORT: "3306"
+  DB_USER: "root"
+  DB_NAME: "parkingdb"

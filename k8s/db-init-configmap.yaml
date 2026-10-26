@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-init-configmap
+  namespace: car-parking
+data:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS `parkingdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+    USE `parkingdb`;
+
+    CREATE TABLE IF NOT EXISTS `users` (
+      `user_id` int(11) NOT NULL AUTO_INCREMENT,
+      `username` varchar(50) NOT NULL,
+      `email` varchar(100) DEFAULT NULL,
+      `password` varchar(255) NOT NULL,
+      `role` varchar(20) DEFAULT 'customer',
+      `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+      PRIMARY KEY (`user_id`),
+      UNIQUE KEY `username` (`username`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    INSERT INTO `users` (`user_id`, `username`, `email`, `password`, `role`) VALUES
+    (1, 'aami', 'aami@example.com', '1234', 'customer'),
+    (2, 'aimy_elzha', 'aimy@example.com', '1234', 'customer'),
+    (3, 'anna', 'anna@example.com', '1234', 'customer'),
+    (4, 'aileen', 'aileen@example.com', '1234', 'customer')
+    ON DUPLICATE KEY UPDATE `username`=`username`;
+
+    CREATE TABLE IF NOT EXISTS `admin` (
+      `admin_id` int(11) NOT NULL AUTO_INCREMENT,
+      `username` varchar(50) NOT NULL,
+      `password` varchar(255) NOT NULL,
+      `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+      PRIMARY KEY (`admin_id`),
+      UNIQUE KEY `username` (`username`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    INSERT INTO `admin` (`admin_id`, `username`, `password`) VALUES
+    (1, 'admin', 'admin123')
+    ON DUPLICATE KEY UPDATE `username`=`username`;
+
+    CREATE TABLE IF NOT EXISTS `parking_slots` (
+      `slot_id` int(11) NOT NULL AUTO_INCREMENT,
+      `slot_no` varchar(10) NOT NULL,
+      `slot_type` varchar(15) NOT NULL DEFAULT 'Standard',
+      `availability` varchar(15) NOT NULL DEFAULT 'available',
+      `location` varchar(50) NOT NULL DEFAULT 'Ground Floor',
+      `status` enum('available','booked') DEFAULT 'available',
+      `is_occupied` tinyint(1) DEFAULT 0,
+      `price_per_hour` decimal(6,2) DEFAULT 20.00,
+      PRIMARY KEY (`slot_id`),
+      UNIQUE KEY `slot_no` (`slot_no`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    INSERT INTO `parking_slots` (`slot_id`, `slot_no`, `slot_type`, `availability`, `location`, `status`, `is_occupied`, `price_per_hour`) VALUES
+    (1, 'A1', 'Compact', 'available', 'Ground Floor', 'available', 0, 20.00),
+    (2, 'A2', 'Compact', 'available', 'Ground Floor', 'available', 0, 20.00),
+    (3, 'B1', 'Large', 'available', 'Basement', 'available', 0, 30.00),
+    (4, 'B2', 'Large', 'available', 'Basement', 'available', 0, 30.00),
+    (5, 'C1', 'Electric', 'available', 'First Floor', 'available', 0, 40.00),
+    (6, 'C2', 'Electric', 'available', 'First Floor', 'available', 0, 40.00)
+    ON DUPLICATE KEY UPDATE `slot_no`=`slot_no`;
+
+    CREATE TABLE IF NOT EXISTS `booking` (
+      `booking_id` int(11) NOT NULL AUTO_INCREMENT,
+      `user_id` int(11) DEFAULT NULL,
+      `slot_no` varchar(10) DEFAULT NULL,
+      `slot_id` int(11) DEFAULT NULL,
+      `entry_time` datetime DEFAULT NULL,
+      `exit_time` datetime DEFAULT NULL,
+      `charge` decimal(6,2) DEFAULT NULL,
+      `total_cost` decimal(6,2) DEFAULT NULL,
+      `payment_status` varchar(20) DEFAULT 'Pending',
+      PRIMARY KEY (`booking_id`),
+      KEY `user_id` (`user_id`),
+      CONSTRAINT `booking_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    INSERT INTO `booking` (`booking_id`, `user_id`, `slot_no`, `slot_id`, `entry_time`, `exit_time`, `charge`, `total_cost`, `payment_status`) VALUES
+    (1, 4, 'B1', 3, '2025-10-28 15:40:00', '2025-10-28 17:40:00', 40.00, 40.00, 'Paid'),
+    (2, 4, 'A1', 1, '2025-10-28 00:29:00', '2025-10-29 16:40:13', 60.00, 60.00, 'Paid'),
+    (3, 4, 'A2', 2, '2025-10-29 16:22:00', '2025-10-29 16:40:05', 60.00, 60.00, 'Paid')
+    ON DUPLICATE KEY UPDATE `booking_id`=`booking_id`;
+
+    CREATE TABLE IF NOT EXISTS `payment` (
+      `payment_id` int(11) NOT NULL AUTO_INCREMENT,
+      `booking_id` int(11) NOT NULL,
+      `amount` decimal(8,2) NOT NULL,
+      `method` varchar(50) NOT NULL,
+      `status` varchar(20) DEFAULT 'Success',
+      `payment_time` datetime DEFAULT current_timestamp(),
+      PRIMARY KEY (`payment_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+    CREATE TABLE IF NOT EXISTS `activity_log` (
+      `log_id` int(11) NOT NULL AUTO_INCREMENT,
+      `user_id` int(11) DEFAULT NULL,
+      `action` varchar(255) NOT NULL,
+      `log_time` datetime DEFAULT current_timestamp(),
+      PRIMARY KEY (`log_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

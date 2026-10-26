@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: car-parking-management-system
+    runtime: docker
+    plan: free
+    branch: main
+    autoDeploy: true

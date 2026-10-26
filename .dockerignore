@@ -1,0 +1,12 @@
+.git
+.gitignore
+.vscode
+.gemini
+docker-compose.yml
+Dockerfile
+.dockerignore
+README.md
+MICRO_PROJECT_REPORT.md
+start-all.ps1
+stop-all.ps1
+k8s/
