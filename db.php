@@ -3,15 +3,22 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Database connection parameters from environment or defaults
-$servername = getenv('DB_HOST') ?: "db";
+// Determine host with intelligent fallback
+if (getenv('DB_HOST')) {
+    $servername = getenv('DB_HOST');
+} elseif (gethostbyname('db') !== 'db') {
+    $servername = 'db'; // Docker Compose default
+} else {
+    $servername = '127.0.0.1'; // Standalone Render / Local default
+}
+
 $username   = getenv('DB_USER') ?: "root";
 $password   = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : "rootpassword";
 $dbname     = getenv('DB_NAME') ?: "parkingdb";
 $port       = getenv('DB_PORT') ? (int)getenv('DB_PORT') : 3306;
 
 // Connection with retry mechanism for container boot sequence
-$max_retries = 5;
+$max_retries = 6;
 $retry_delay = 2; // seconds
 $conn = null;
 

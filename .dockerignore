@@ -3,7 +3,6 @@
 .vscode
 .gemini
 docker-compose.yml
-Dockerfile
 .dockerignore
 README.md
 MICRO_PROJECT_REPORT.md
