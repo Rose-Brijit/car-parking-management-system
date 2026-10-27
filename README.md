@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚗 Car Parking Management System - Docker Setup
 
 This project is a containerized web application for managing car parking slots, user reservations, payments, and admin monitoring.
@@ -125,3 +126,6 @@ Docker will download the images, initialize the database automatically, and star
 ├── style.css               # Styling
 └── b1.jpg                  # Background image
 ```
+=======
+# car-parking-management-system
+>>>>>>> 51d446038ead82d5ac29d6fc9b9f0fcee6220361
